@@ -1,0 +1,14 @@
+name: EasyQuests
+version: '${version}'
+
+main: me.EHOT_2025.easyQuests.EasyQuests
+api-version: '1.21.8'
+load: POSTWORLD
+author: EHOT_2025
+
+commands:
+  easyquests:
+    description: входная команда для квестов
+    aliases:
+      - equests
+      - eq
