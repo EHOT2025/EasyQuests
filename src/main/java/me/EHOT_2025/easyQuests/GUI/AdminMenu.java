@@ -8,6 +8,9 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static me.EHOT_2025.easyQuests.GUI.MainMenu.isAdmin;
 
 public class AdminMenu extends Template {
@@ -39,6 +42,33 @@ public class AdminMenu extends Template {
             npcsListItem.setItemMeta(meta1);
         }
         inventory.setItem(15, npcsListItem);
+
+        ItemStack createQuestItem = new ItemStack(Material.WRITABLE_BOOK);
+        ItemMeta createMeta = createQuestItem.getItemMeta();
+        if (createMeta != null) {
+            createMeta.setDisplayName(ChatColor.GREEN + "Создать квест");
+            List<String> lore = new ArrayList<>();
+            lore.add(ChatColor.GRAY + "Запустить конструктор нового квеста");
+            createMeta.setLore(lore);
+            createQuestItem.setItemMeta(createMeta);
+        }
+        inventory.setItem(20, createQuestItem);
+
+        ItemStack editQuestItem = new ItemStack(Material.ANVIL);
+        ItemMeta editMeta = editQuestItem.getItemMeta();
+        if (editMeta != null) {
+            editMeta.setDisplayName(ChatColor.YELLOW + "Редактировать квест");
+            editQuestItem.setItemMeta(editMeta);
+        }
+        inventory.setItem(22, editQuestItem);
+
+        ItemStack deleteQuestItem = new ItemStack(Material.LAVA_BUCKET);
+        ItemMeta deleteMeta = deleteQuestItem.getItemMeta();
+        if (deleteMeta != null) {
+            deleteMeta.setDisplayName(ChatColor.RED + "Удалить квест");
+            deleteQuestItem.setItemMeta(deleteMeta);
+        }
+        inventory.setItem(24, deleteQuestItem);
     }
 
     @Override
@@ -47,12 +77,16 @@ public class AdminMenu extends Template {
 
         if (slot == 11) {
             player.closeInventory();
-            player.sendMessage(EasyQuests.getPrefix() + ChatColor.GOLD + "Укажите UUID NPC: /eq <UUID> (UUID можете скопировать в редакторе NPC):");
+            player.sendMessage(EasyQuests.getPrefix() + ChatColor.GOLD + "Укажите UUID и имя NPC: /eq <UUID> <имя> (UUID можете скопировать в редакторе NPC):");
         }
 
         if (slot == 15) {
-            player.closeInventory();
-            player.sendMessage(EasyQuests.getPrefix() + "Список квестодателей в разработке!");
+            QuestGiversMenu giversMenu = new QuestGiversMenu(player);
+            giversMenu.open();
+        }
+
+        if (slot == 20) {
+            new CreateQuestMenu(player).open();
         }
     }
 }

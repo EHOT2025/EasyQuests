@@ -44,9 +44,11 @@ public class MainMenu extends Template {
             inventory.setItem(0, questsItem);
         }
 
-        ItemStack questsItem = new ItemStack(Material.PLAYER_HEAD); // TODO: Сейчас голова дефолтного стива, сделать чтобы отображало голову игрока.
+        ItemStack questsItem = new ItemStack(Material.PLAYER_HEAD);
         ItemMeta meta1 = questsItem.getItemMeta();
-        if (meta1 != null) {
+        if (meta1 instanceof org.bukkit.inventory.meta.SkullMeta) {
+            org.bukkit.inventory.meta.SkullMeta skullMeta = (org.bukkit.inventory.meta.SkullMeta) meta1;
+            skullMeta.setOwningPlayer(player);
             meta1.setDisplayName(ChatColor.GREEN + "Статистика");
             questsItem.setItemMeta(meta1);
         }
@@ -85,8 +87,9 @@ public class MainMenu extends Template {
         int slot = event.getRawSlot();
 
         if (slot == 0 && openedByNpc) {
-            player.closeInventory();
-            player.sendMessage(ChatColor.GRAY + EasyQuests.getPrefix() + "Раздел с квестами в разработке.");
+            QuestsMenu questsMenu = new QuestsMenu(player);
+            questsMenu.open();
+            return;
         }
 
         if (slot == 11) {

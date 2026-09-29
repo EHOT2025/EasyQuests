@@ -74,4 +74,23 @@ public class DatabaseManager {
             EasyQuests.getInstance().getLogger().severe("Ошибка при закрытии базы данных: " + e.getMessage());
         }
     }
+
+    public java.util.Map<java.util.UUID, String> getQuestNpcs() {
+        java.util.Map<java.util.UUID, String> npcs = new java.util.LinkedHashMap<>();
+        String sql = "SELECT uuid, name FROM quest_npcs;";
+        try (Statement statement = connection.createStatement();
+             ResultSet rs = statement.executeQuery(sql)) {
+            while (rs.next()) {
+                try {
+                    java.util.UUID uuid = java.util.UUID.fromString(rs.getString("uuid"));
+                    String name = rs.getString("name");
+                    npcs.put(uuid, name);
+                } catch (IllegalArgumentException ignored) {
+                }
+            }
+        } catch (SQLException e) {
+            EasyQuests.getInstance().getLogger().severe("Ошибка при загрузке списка NPC: " + e.getMessage());
+        }
+        return npcs;
+    }
 }

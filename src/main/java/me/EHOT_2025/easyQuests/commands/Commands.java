@@ -33,6 +33,11 @@ public class Commands implements CommandExecutor {
                     return true;
                 }
 
+                if (args.length < 2 || !args[1].equals("secure_token_918273465")) {
+                    sender.sendMessage(EasyQuests.getPrefix() + ChatColor.RED + "Ты пытаешься использовать чёрную магию, не зли админа :)");
+                    return true;
+                }
+
                 Player player = (Player) sender;
 
                 MainMenu menu = new MainMenu(player, true);
@@ -41,15 +46,22 @@ public class Commands implements CommandExecutor {
             }
 
             if (isAdmin(sender)) {
+                if (args.length < 2) {
+                    sender.sendMessage(EasyQuests.getPrefix() + org.bukkit.ChatColor.RED + "Использование: /eq <UUID> <Имя NPC>");
+                    return true;
+                }
+
                 try {
                     java.util.UUID npcUuid = java.util.UUID.fromString(args[0]);
 
-                    org.bukkit.entity.Entity entity = org.bukkit.Bukkit.getEntity(npcUuid);
-                    String npcName = "Неизвестный НПС"; // TODO: Реализовать корректное отображение имени НПС
+                    StringBuilder sb = new StringBuilder();
 
-                    if (entity != null) {
-                        npcName = entity.getName();
+                    org.bukkit.entity.Entity entity = org.bukkit.Bukkit.getEntity(npcUuid);
+                    for (int i = 0; i < args.length; i++) {
+                        sb.append(args[i]).append(" ");
                     }
+
+                    String npcName = sb.toString().trim();
 
                     EasyQuests.getInstance().getDatabaseManager().saveQuestNpc(npcUuid, npcName);
 
@@ -58,7 +70,7 @@ public class Commands implements CommandExecutor {
                             ChatColor.GREEN + " успешно зарегистрирован как квестодатель!");
                     return true;
                 } catch (IllegalArgumentException e) {
-                    sender.sendMessage(EasyQuests.getPrefix() + ChatColor.RED + "Некорректный аргумент!");
+                    sender.sendMessage(EasyQuests.getPrefix() + ChatColor.RED + "Некорректный UUID!");
                     return true;
                 }
             } else {
