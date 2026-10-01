@@ -1,14 +1,14 @@
 package me.EHOT_2025.easyQuests.questBuilder;
 
 public class QuestCondition {
-    private final String conditionKey; // TODO: идентификатор условия (например, NO_DEATH, TIME_LIMIT, NO_ARMOR)
-    private final String value;        // TODO: аргумент (например, количество часов для таймера)
+    private final String conditionKey;
+    private final int parameter;
 
-    public QuestCondition(String conditionKey, String value) {
+    public QuestCondition(String conditionKey, int parameter) {
         this.conditionKey = conditionKey;
-        this.value = value;
+        this.parameter = parameter;
     }
 
     public String getConditionKey() { return conditionKey; }
-    public String getValue() { return value; }
+    public int getParameter() { return parameter; }
 }

@@ -2,7 +2,7 @@ package me.EHOT_2025.easyQuests.questBuilder;
 
 public class QuestGoal {
     public enum GoalType {
-        SEARCH, GATHER, KILL, CRAFT, DELIVER
+        SEARCH, GATHER, KILL, CRAFT, DELIVER, GIVE, FIND
     }
 
     private final GoalType type;

@@ -1,14 +1,29 @@
 package me.EHOT_2025.easyQuests.questBuilder;
 
-public class QuestReward {
-    private final String itemOrRep; //TODO: айди предмета или ключевое слово для УР
-    private final int amount;       //TODO: количество
+import org.bukkit.Material;
 
-    public QuestReward(String itemOrRep, int amount) {
-        this.itemOrRep = itemOrRep;
+public class QuestReward {
+    private final boolean isReputation;
+    private final Material material;
+    private final int amount;
+    private final double reputationAmount;
+
+    public QuestReward(Material material, int amount) {
+        this.isReputation = false;
+        this.material = material;
         this.amount = amount;
+        this.reputationAmount = 0.0;
     }
 
-    public String getItemOrRep() { return itemOrRep; }
+    public QuestReward(double reputationAmount) {
+        this.isReputation = true;
+        this.material = null;
+        this.amount = 0;
+        this.reputationAmount = reputationAmount;
+    }
+
+    public boolean isReputation() { return isReputation; }
+    public Material getMaterial() { return material; }
     public int getAmount() { return amount; }
+    public double getReputationAmount() { return reputationAmount; }
 }

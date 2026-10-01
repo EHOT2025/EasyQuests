@@ -22,6 +22,7 @@ public abstract class Template implements InventoryHolder {
     public abstract void setMenuItems();
 
     public void open() {
+        inventory.clear();
         setMenuItems();
         fillEmptySlots();
         addCloseButton();

@@ -1,6 +1,9 @@
 package me.EHOT_2025.easyQuests.GUI;
 
 import me.EHOT_2025.easyQuests.EasyQuests;
+import me.EHOT_2025.easyQuests.SelectingModeManager;
+import me.EHOT_2025.easyQuests.questBuilder.QuestBuilder;
+import me.EHOT_2025.easyQuests.questBuilder.QuestBuilderManager;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -33,7 +36,15 @@ public class QuestGiversMenu extends Template {
                 if (slot >= 45) break;
 
                 UUID npcUuid = entry.getKey();
-                String npcName = entry.getValue();
+                String rawValue = entry.getValue();
+
+                String npcName = rawValue;
+                if (rawValue.contains(" ") && rawValue.length() > 36) {
+                    String[] parts = rawValue.split(" ", 2);
+                    if (parts.length > 1 && parts[0].length() == 36) {
+                        npcName = parts[1];
+                    }
+                }
 
                 ItemStack headItem = new ItemStack(Material.PLAYER_HEAD);
                 SkullMeta meta = (SkullMeta) headItem.getItemMeta();
@@ -44,12 +55,15 @@ public class QuestGiversMenu extends Template {
                     List<String> lore = new ArrayList<>();
                     lore.add(ChatColor.GRAY + "UUID: " + npcUuid.toString());
                     lore.add("");
-                    lore.add(ChatColor.GREEN + "▶ Нажмите для управления квестами");
+                    if (SelectingModeManager.isSelecting(player)) {
+                        lore.add(ChatColor.GREEN + "▶ Нажмите, чтобы выбрать этого квестодателя");
+                    } else {
+                        lore.add(ChatColor.GREEN + "▶ Нажмите для управления квестами");
+                    }
                     meta.setLore(lore);
 
                     headItem.setItemMeta(meta);
                 }
-
                 inventory.setItem(slot, headItem);
                 slot++;
             }
@@ -58,7 +72,7 @@ public class QuestGiversMenu extends Template {
         ItemStack backItem = new ItemStack(Material.BARRIER);
         ItemMeta backMeta = backItem.getItemMeta();
         if (backMeta != null) {
-            backMeta.setDisplayName(ChatColor.RED + "Назад в админ-панель");
+            backMeta.setDisplayName(ChatColor.RED + "Назад");
             backItem.setItemMeta(backMeta);
         }
         inventory.setItem(49, backItem);
@@ -69,13 +83,37 @@ public class QuestGiversMenu extends Template {
         int slot = event.getRawSlot();
 
         if (slot == 49) {
-            AdminMenu adminMenu = new AdminMenu(player);
-            adminMenu.open();
+            if (SelectingModeManager.isSelecting(player)) {
+                SelectingModeManager.setSelecting(player, false);
+                new CreateQuestMenu(player).open();
+            } else {
+                new AdminMenu(player).open();
+            }
             return;
         }
 
-        if (event.getCurrentItem() != null && event.getCurrentItem().getType() == Material.PLAYER_HEAD) {
-            player.sendMessage(ChatColor.GRAY + EasyQuests.getPrefix() + "Управление конкретным квестодателем в разработке.");
+        ItemStack clicked = event.getCurrentItem();
+        if (clicked != null && clicked.getType() == Material.PLAYER_HEAD) {
+            ItemMeta meta = clicked.getItemMeta();
+            if (meta != null && meta.hasLore()) {
+                String uuidLine = ChatColor.stripColor(meta.getLore().get(0));
+                if (uuidLine.startsWith("UUID: ")) {
+                    UUID npcUuid = UUID.fromString(uuidLine.replace("UUID: ", "").trim());
+                    String npcName = ChatColor.stripColor(meta.getDisplayName());
+
+                    if (SelectingModeManager.isSelecting(player)) {
+                        QuestBuilder builder = QuestBuilderManager.getBuilder(player.getUniqueId());
+                        builder.setNpcUuid(npcUuid);
+                        SelectingModeManager.setSelecting(player, false);
+
+                        new CreateQuestMenu(player).open();
+                        player.sendMessage(ChatColor.GREEN + EasyQuests.getPrefix() + "Квестодатель успешно привязан: " + ChatColor.YELLOW + npcName);
+                        return;
+                    }
+
+                    player.sendMessage(ChatColor.GRAY + EasyQuests.getPrefix() + "Управление конкретным квестодателем в разработке.");
+                }
+            }
         }
     }
 }

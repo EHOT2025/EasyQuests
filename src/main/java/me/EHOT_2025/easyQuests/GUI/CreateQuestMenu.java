@@ -1,6 +1,7 @@
 package me.EHOT_2025.easyQuests.GUI;
 
 import me.EHOT_2025.easyQuests.EasyQuests;
+import me.EHOT_2025.easyQuests.SelectingModeManager;
 import me.EHOT_2025.easyQuests.questBuilder.QuestBuilderManager;
 import me.EHOT_2025.easyQuests.questBuilder.QuestBuilder;
 import org.bukkit.ChatColor;
@@ -130,11 +131,29 @@ public class CreateQuestMenu extends Template {
             saveItem.setItemMeta(saveMeta);
         }
         inventory.setItem(49, saveItem);
+
+        ItemStack npcItem = new ItemStack(Material.VILLAGER_SPAWN_EGG);
+        ItemMeta npcMeta = npcItem.getItemMeta();
+        if (npcMeta != null) {
+            npcMeta.setDisplayName(ChatColor.YELLOW + "Квестодатель *");
+            List<String> lore = new ArrayList<>();
+            if (builder.getNpcUuid() != null) {
+                lore.add(ChatColor.GRAY + "Выбран UUID: " + ChatColor.GREEN + builder.getNpcUuid().toString());
+            } else {
+                lore.add(ChatColor.GRAY + "Текущий: " + ChatColor.RED + "Не выбран");
+            }
+            lore.add("");
+            lore.add(ChatColor.AQUA + "▶ Нажмите, чтобы выбрать квестодателя");
+            npcMeta.setLore(lore);
+            npcItem.setItemMeta(npcMeta);
+        }
+        inventory.setItem(10, npcItem);
     }
 
     @Override
     public void handleMenuClick(InventoryClickEvent event) {
         int slot = event.getRawSlot();
+        QuestBuilder builder = QuestBuilderManager.getBuilder(player.getUniqueId());
 
         if (slot == 19) {
             player.closeInventory();
@@ -162,15 +181,23 @@ public class CreateQuestMenu extends Template {
             });
         }
         else if (slot == 49) {
-            QuestBuilder builder = QuestBuilderManager.getBuilder(player.getUniqueId());
             if (builder.isReadyToSave()) {
                 // TODO: Сохранение квеста в бд
                 player.sendMessage(ChatColor.GREEN + EasyQuests.getPrefix() + "Квест успешно создан и сохранен!");
-                QuestBuilderManager.clearBuilder(player.getUniqueId());
+                QuestBuilderManager.removeBuilder(player);
                 new AdminMenu(player).open();
             } else {
                 player.sendMessage(ChatColor.RED + EasyQuests.getPrefix() + "Не все обязательные поля (*) заполнены!");
             }
+        }
+        else if (slot == 10) {
+            QuestBuilderManager.setBuilder(player, builder);
+            SelectingModeManager.setSelecting(player, true);
+            new QuestGiversMenu(player).open();
+            player.sendMessage(ChatColor.YELLOW + "▶ Выберите квестодателя из списка для привязки к квесту.");
+        }
+        else if (slot == 23) {
+            new GoalsManagementMenu(player).open();
         }
     }
 }
